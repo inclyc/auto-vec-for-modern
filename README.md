@@ -1,4 +1,4 @@
-# TeX Beamer Template
+# Auto Vectorization Methods Implementations for Modern Architecture
 
 
 ## License
