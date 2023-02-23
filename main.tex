@@ -9,7 +9,119 @@
 \input{lst_style.tex}
 \input{section_pages.tex}
 
+\title{Auto-vectorization methods \& implementations}
+\subtitle{自动向量化的方法与实现}
+\author{龙英池}
+\institute{Interns @ ISCAS}
+
 \begin{document}
 \maketitle
+\section{Introduction}
+\subsection{Challenges}
+\begin{frame}
+    \frametitle{Challenges - 并行的多样性}
+
+    并行是目前主要算力，但是 ISA 定义多样。我们难以找到一个合适的抽象来用统一的范式进行自动向量化。
+
+    \begin{table}
+        \centering
+        \begin{tabular}{ccc}
+            \toprule
+            设备 / ISA         & 对应的并行实现                             & 备注           \\
+            \midrule
+            NVIDIA/AMD GPU   & SIMT                                & 结合 SIMD 和多线程 \\
+            寒武纪              & SIMD 长度可变                           & repeat 操作    \\
+            升腾               & 默认操作 tensor                         & 看起来可能是多维的    \\
+            以 x86 为代表的传统 CPU & 定长，通常可以同时操作标量                       & 需要对齐、尾循环处理等  \\
+            RISC-V           & scatter \& gather, \& 长度可变, \& mask & V 扩展         \\
+            ARM-SVE          & 类似 RVV                              & 没有 RVV 灵活    \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+    编译器难以使用统一的范式进行自动向量化。
+
+\end{frame}
+
+\subsection{Prior Art}
+
+\begin{frame}
+    \frametitle{Prior Art - MLIR \& LLVM}
+
+    \begin{enumerate}
+        \item MLIR - 目前没有自动向量化 \\
+              Vector Dialect，面向各种 DSL 提供 n-D vector type，并可以在 lowering 到 LLVM IR 的过程中对 n-D vector 进行 re-layout，例如组成float4，
+        \item LLVM - 有向量化，但主要面向传统 CPU \\
+              从引入 Vector Predication 开始，主要被作为 CodeGen 的最后一关对接 MLIR，LLVM 本身的自动向量化有较大历史包袱。
+    \end{enumerate}
+\end{frame}
+
+\subsection{Goal}
+
+\begin{frame}
+    \frametitle{Goal - Auto-Vectorization Service}
+
+    \begin{enumerate}
+        \item Extensible: 足够方便扩展
+        \item Composible: 可以组合各种情况
+        \item Simple: IR 层面尽量显然，避免多余静态分析
+    \end{enumerate}
+\end{frame}
+
+\section{Virtual Vector - Vector Dialect}
+
+\begin{frame}[fragile]
+    \frametitle{Virtual Vector}
+
+    MLIR Vector Dialect 提供了一个 nD vector 的抽象。这种抽象对于现代 HPC 来说是必要的。
+
+    一个简单的例子：
+
+    \begin{lstlisting}
+kernel（float A）.     load A[0-3]; add[0-3]
+kernel (float4 A).     load A[0-15]; add[0-3] ; add[4-7]; add[]; add[]
+
+vector A[100xfloat] => A[25* 4xfloat]
+    \end{lstlisting}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Position}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.56\linewidth]{images/position.png}
+        \caption{Positioning in the Codegen Infrastructure}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Virtual Vector Lowering Path}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.56\linewidth]{images/position2.png}
+        \caption{MLIR Patterns}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Auto-Vectorization $\Rightarrow$ Pattern-Rewrite?}
+
+    自动向量化 $\Rightarrow$ 将标量提升为 Vector 类型
+
+    \hspace{2em}
+
+    如果源代码：
+    \begin{enumerate}
+        \item 矩阵乘法等高维形式 $\rightarrow$ 使用 \texttt{linalg} 直接 lowering 到 \texttt{vector}
+        \item 本来是标量循环 $\rightarrow$ \texttt{affine.for} $\rightarrow$ \texttt{vector}
+    \end{enumerate}
+
+\end{frame}
+
 \end{document}
 
