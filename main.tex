@@ -109,18 +109,19 @@ vector A[100xfloat4] => A[25 x 4 x float]
 \begin{frame}
     \frametitle{Position}
     \begin{minipage}[t]{0.47\textwidth}
+        \small
         \begin{itemize}
-            \item 借助 Affine/SCF 等上层 dialect 解决循环等结构操作
-            \item 借助 arith 等基本 dialect 完成基本的向量创建和四则运算
-            \item 借助各种 ISA-spec dialect 补充自己没有的底层细节
-            \item 自己则集中表示 ``通用'' 的向量操作
+            \item \texttt{affine/scf} 等上层 Dialect 解决循环等结构操作
+            \item \texttt{arith} 等基本 Dialect 完成基本的向量创建和四则运算
+            \item 各种 ISA-spec Dialect 补充自己没有的底层细节
+            \item \texttt{vector} 则集中表示 ``通用'' 的向量操作
         \end{itemize}
     \end{minipage}%
     % \hfill%
     \begin{minipage}[t]{0.5\textwidth}
         \begin{figure}
             \centering
-            \includegraphics[width=0.56\linewidth]{images/position.png}
+            \includegraphics[width=1.0\linewidth]{images/position.png}
             \caption{Positioning in the Codegen Infrastructure}
         \end{figure}
     \end{minipage}
