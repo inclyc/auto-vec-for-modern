@@ -71,31 +71,59 @@
 
 \section{Virtual Vector - Vector Dialect}
 
-\begin{frame}[fragile]
+\begin{frame}
     \frametitle{Virtual Vector}
 
-    MLIR Vector Dialect 提供了一个 nD vector 的抽象。这种抽象对于现代 HPC 来说是必要的。
+    MLIR Vector Dialect 提供了对各种向量的平台无关的丰富抽象.
 
+    作为核心数据类型的 vector 可以是:
+    \begin{itemize}
+        \item 多维的, 或不确定维数的
+        \item 定长的, 或不确定长度的, 或变长的
+        \item 可以包含几乎任意的基本数据类型, 甚至诸如 int4 等类型
+    \end{itemize}
+
+    能表示 vector 在各种层次上的操作:
+    \begin{itemize}
+        \item 基本的创建, 运算, 内存读写, 元素读写
+        \item 贴合 LLVM intrinsic 级别的操作 (e.g. 各种底层 load/store, 一维向量操作)
+        \item 一般向量操作 (e.g. reduce)
+        \item 贴合 Linalg 级别的操作 (e.g. transfer\_read, transfer\_write, contract)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+    MLIR Vector Dialect 提供了一个 nD vector 的抽象。这种抽象对于现代 HPC 来说是必要的。
     一个简单的例子：
 
     \begin{lstlisting}
 kernel（float A）.     load A[0-3]; add[0-3]
 kernel (float4 A).     load A[0-15]; add[0-3] ; add[4-7]; add[]; add[]
 
-vector A[100xfloat] => A[25* 4xfloat]
+vector A[100xfloat4] => A[25 x 4 x float]
     \end{lstlisting}
-
 \end{frame}
+
+
 
 \begin{frame}
     \frametitle{Position}
-
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.56\linewidth]{images/position.png}
-        \caption{Positioning in the Codegen Infrastructure}
-    \end{figure}
-
+    \begin{minipage}[t]{0.47\textwidth}
+        \begin{itemize}
+            \item 借助 Affine/SCF 等上层 dialect 解决循环等结构操作
+            \item 借助 arith 等基本 dialect 完成基本的向量创建和四则运算
+            \item 借助各种 ISA-spec dialect 补充自己没有的底层细节
+            \item 自己则集中表示 ``通用'' 的向量操作
+        \end{itemize}
+    \end{minipage}%
+    % \hfill%
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.56\linewidth]{images/position.png}
+            \caption{Positioning in the Codegen Infrastructure}
+        \end{figure}
+    \end{minipage}
 \end{frame}
 
 \begin{frame}
@@ -126,6 +154,47 @@ vector A[100xfloat] => A[25* 4xfloat]
 
 
 
+\end{frame}
+
+\begin{frame}{Current RVV Vectoriazation lowering path}
+    \begin{minipage}[t]{0.47\textwidth}
+        \begin{itemize}
+            \item 截止日期 2023/02
+            \item (1) MLIR 上目前没有实现, 但是可以参考诸多的其它 SIMD 向量化实现
+            \item (2) MLIR 上目前没有实现, 仅有少量其它实现可以参考
+            \item (3) 与 (6) 于 MLIR 中已有成熟实现
+            \item (4) 与 (5) 于 MLIR 中未有实现
+            \item LLVM 中, 非 vp intrinsic 和 vp intrinsic 均有到 RVV 汇编的生成实现, 目前非 vp intrinsic 的 CodeGen 比较完善
+        \end{itemize}
+    \end{minipage}%
+    % \hfill%
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.56\linewidth]{images/lowering-path-around-vector.png}
+            \caption{Lowering path around vector dialect}
+        \end{figure}
+    \end{minipage}
+\end{frame}
+
+\begin{frame}{Current RVV Vectoriazation lowering path}
+    \begin{itemize}
+        \item (2) SCF Dialect -> Scalable Vector Dialect
+              \begin{itemize}
+                  \item 也许可以在循环主体部分参考 SIMD 架构的实现
+                  \item 循环尾的处理需要新的实现
+              \end{itemize}
+        \item (4) (5) Scalable Vector Dialect -> LLVM (Dialect)
+              \begin{itemize}
+                  \item 由于 Scalable Vector 加入时间较晚, 目前 Vector Dialect 对 Scalable Vector 的 lowering 支持非常地少
+                  \item 加入此类 lowering 可能需要对现有的代码进行较大的增补与检查
+                        \begin{itemize}
+                            \item Scalable 与非 Scalable 的混杂的情况? (各种前期检查)
+                            \item 原来的对 operation 的递归定义是否对 Scalable Vector 适用?
+                            \item 可能需要先进行社区讨论
+                        \end{itemize}
+              \end{itemize}
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
