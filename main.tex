@@ -233,7 +233,7 @@ vector A[100xfloat4] => A[25 x 4 x float]
 
 \end{frame}
 
-\begin{frame}{Current RVV Vectoriazation lowering path}
+\begin{frame}{Current RVV Vectorization Lowering Path}
     \begin{minipage}[t]{0.47\textwidth}
         \small
         \begin{itemize}
@@ -254,14 +254,14 @@ vector A[100xfloat4] => A[25 x 4 x float]
     \end{minipage}
 \end{frame}
 
-\begin{frame}{Current RVV Vectoriazation lowering path}
+\begin{frame}{Current RVV Vectorization Lowering Path}
     \begin{itemize}
-        \item (2) SCF Dialect -> Scalable Vector Dialect
+        \item (2) SCF Dialect $\rightarrow$ Scalable Vector Dialect
               \begin{itemize}
                   \item 也许可以在循环主体部分参考 SIMD 架构的实现
                   \item 循环尾的处理需要新的实现
               \end{itemize}
-        \item (4) (5) Scalable Vector Dialect -> LLVM (Dialect)
+        \item (4) (5) Scalable Vector Dialect $\rightarrow$ LLVM (Dialect)
               \begin{itemize}
                   \item 由于 Scalable Vector 加入时间较晚, 目前 Vector Dialect 对 Scalable Vector 的 lowering 支持非常地少
                   \item 加入此类 lowering 可能需要对现有的代码进行较大的增补与检查
