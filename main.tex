@@ -235,45 +235,36 @@ vector A[100xfloat4] => A[25 x 4 x float]
 \end{frame}
 
 \begin{frame}{Current RVV Vectorization Lowering Path}
-    \begin{minipage}[t]{0.47\textwidth}
-        \small
-        \begin{itemize}
-            \item (1) MLIR 上目前没有实现, 但是可以参考诸多的其它 SIMD 向量化实现
-            \item (2) MLIR 上目前没有实现, 仅有少量其它实现可以参考
-            \item (3) 与 (6) 于 MLIR 中已有成熟实现
-            \item (4) 与 (5) 于 MLIR 中未有实现
-            \item LLVM 中, 非 vp intrinsic 和 vp intrinsic 均有到 RVV 汇编的生成实现, 目前非 vp intrinsic 的 CodeGen 比较完善
-        \end{itemize}
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{table}
+            \scriptsize
+            \centering
+            \caption{MLIR Lowering Path 实现情况}
+            \begin{tabular}{ccc}
+                \toprule
+                序号                                                                                                                            & 实现情况 & 备注           \\
+                \midrule
+                (1)                                                                                                                           & 无    & 有参考资料        \\
+                (2)\footnote{\tiny 可以在循环主体部分参考 SIMD 架构的实现, 循环尾的处理需要新的实现}                                                                      & 无    & 无（少）参考资料     \\
+                (3) (6)                                                                                                                       & 成熟   &              \\
+                (4)(5)\footnote{\tiny 基本无实现，需要对现有代码较大增补和验证，并且需要和上游交流，例如 Scalable 与非 Scalable 的混杂、原来的对 operation 的递归定义是否对 Scalable Vector 适用?} & 无    & Scalable 新加入 \\
+                \bottomrule
+            \end{tabular}
+        \end{table}
+
+        \scriptsize
+        LLVM 后端有 vector intrinsic 和 vp intrinsic 两种后端可选。
+
+        其中 vp 出现较晚，没有 vector 成熟，但基本能用。
     \end{minipage}%
     % \hfill%
     \begin{minipage}[t]{0.5\textwidth}
         \begin{figure}
             \centering
-            \includegraphics[width=0.40\linewidth]{images/lowering-path-around-vector.png}
+            \includegraphics[width=0.5\linewidth]{images/lowering-path-around-vector.png}
             \caption{Lowering path around vector dialect}
         \end{figure}
     \end{minipage}
 \end{frame}
 
-\begin{frame}{Current RVV Vectorization Lowering Path}
-    \begin{itemize}
-        \item (2) SCF Dialect $\rightarrow$ Scalable Vector Dialect
-              \begin{itemize}
-                  \item 也许可以在循环主体部分参考 SIMD 架构的实现
-                  \item 循环尾的处理需要新的实现
-              \end{itemize}
-        \item (4) (5) Scalable Vector Dialect $\rightarrow$ LLVM (Dialect)
-              \begin{itemize}
-                  \item 由于 Scalable Vector 加入时间较晚, 目前 Vector Dialect 对 Scalable Vector 的 lowering 支持非常地少
-                  \item 加入此类 lowering 可能需要对现有的代码进行较大的增补与检查
-                        \begin{itemize}
-                            \item Scalable 与非 Scalable 的混杂的情况? (各种前期检查)
-                            \item 原来的对 operation 的递归定义是否对 Scalable Vector 适用?
-                            \item 可能需要先进行社区讨论
-                        \end{itemize}
-              \end{itemize}
-    \end{itemize}
-\end{frame}
-
 \end{document}
-
