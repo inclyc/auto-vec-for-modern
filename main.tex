@@ -235,8 +235,8 @@ vector A[100xfloat4] => A[25 x 4 x float]
 
 \begin{frame}{Current RVV Vectoriazation lowering path}
     \begin{minipage}[t]{0.47\textwidth}
+        \small
         \begin{itemize}
-            \item 截止日期 2023/02
             \item (1) MLIR 上目前没有实现, 但是可以参考诸多的其它 SIMD 向量化实现
             \item (2) MLIR 上目前没有实现, 仅有少量其它实现可以参考
             \item (3) 与 (6) 于 MLIR 中已有成熟实现
@@ -248,7 +248,7 @@ vector A[100xfloat4] => A[25 x 4 x float]
     \begin{minipage}[t]{0.5\textwidth}
         \begin{figure}
             \centering
-            \includegraphics[width=0.56\linewidth]{images/lowering-path-around-vector.png}
+            \includegraphics[width=0.40\linewidth]{images/lowering-path-around-vector.png}
             \caption{Lowering path around vector dialect}
         \end{figure}
     \end{minipage}
