@@ -156,47 +156,6 @@ vector A[100xfloat4] => A[25 x 4 x float]
 
 \end{frame}
 
-\begin{frame}{Current RVV Vectoriazation lowering path}
-    \begin{minipage}[t]{0.47\textwidth}
-        \begin{itemize}
-            \item 截止日期 2023/02
-            \item (1) MLIR 上目前没有实现, 但是可以参考诸多的其它 SIMD 向量化实现
-            \item (2) MLIR 上目前没有实现, 仅有少量其它实现可以参考
-            \item (3) 与 (6) 于 MLIR 中已有成熟实现
-            \item (4) 与 (5) 于 MLIR 中未有实现
-            \item LLVM 中, 非 vp intrinsic 和 vp intrinsic 均有到 RVV 汇编的生成实现, 目前非 vp intrinsic 的 CodeGen 比较完善
-        \end{itemize}
-    \end{minipage}%
-    % \hfill%
-    \begin{minipage}[t]{0.5\textwidth}
-        \begin{figure}
-            \centering
-            \includegraphics[width=0.56\linewidth]{images/lowering-path-around-vector.png}
-            \caption{Lowering path around vector dialect}
-        \end{figure}
-    \end{minipage}
-\end{frame}
-
-\begin{frame}{Current RVV Vectoriazation lowering path}
-    \begin{itemize}
-        \item (2) SCF Dialect -> Scalable Vector Dialect
-              \begin{itemize}
-                  \item 也许可以在循环主体部分参考 SIMD 架构的实现
-                  \item 循环尾的处理需要新的实现
-              \end{itemize}
-        \item (4) (5) Scalable Vector Dialect -> LLVM (Dialect)
-              \begin{itemize}
-                  \item 由于 Scalable Vector 加入时间较晚, 目前 Vector Dialect 对 Scalable Vector 的 lowering 支持非常地少
-                  \item 加入此类 lowering 可能需要对现有的代码进行较大的增补与检查
-                        \begin{itemize}
-                            \item Scalable 与非 Scalable 的混杂的情况? (各种前期检查)
-                            \item 原来的对 operation 的递归定义是否对 Scalable Vector 适用?
-                            \item 可能需要先进行社区讨论
-                        \end{itemize}
-              \end{itemize}
-    \end{itemize}
-\end{frame}
-
 \begin{frame}
     \frametitle{Auto-Vectorization $\Rightarrow$ Pattern-Rewrite?}
 
@@ -272,6 +231,47 @@ vector A[100xfloat4] => A[25 x 4 x float]
         \end{tabular}
     \end{table}
 
+\end{frame}
+
+\begin{frame}{Current RVV Vectoriazation lowering path}
+    \begin{minipage}[t]{0.47\textwidth}
+        \begin{itemize}
+            \item 截止日期 2023/02
+            \item (1) MLIR 上目前没有实现, 但是可以参考诸多的其它 SIMD 向量化实现
+            \item (2) MLIR 上目前没有实现, 仅有少量其它实现可以参考
+            \item (3) 与 (6) 于 MLIR 中已有成熟实现
+            \item (4) 与 (5) 于 MLIR 中未有实现
+            \item LLVM 中, 非 vp intrinsic 和 vp intrinsic 均有到 RVV 汇编的生成实现, 目前非 vp intrinsic 的 CodeGen 比较完善
+        \end{itemize}
+    \end{minipage}%
+    % \hfill%
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.56\linewidth]{images/lowering-path-around-vector.png}
+            \caption{Lowering path around vector dialect}
+        \end{figure}
+    \end{minipage}
+\end{frame}
+
+\begin{frame}{Current RVV Vectoriazation lowering path}
+    \begin{itemize}
+        \item (2) SCF Dialect -> Scalable Vector Dialect
+              \begin{itemize}
+                  \item 也许可以在循环主体部分参考 SIMD 架构的实现
+                  \item 循环尾的处理需要新的实现
+              \end{itemize}
+        \item (4) (5) Scalable Vector Dialect -> LLVM (Dialect)
+              \begin{itemize}
+                  \item 由于 Scalable Vector 加入时间较晚, 目前 Vector Dialect 对 Scalable Vector 的 lowering 支持非常地少
+                  \item 加入此类 lowering 可能需要对现有的代码进行较大的增补与检查
+                        \begin{itemize}
+                            \item Scalable 与非 Scalable 的混杂的情况? (各种前期检查)
+                            \item 原来的对 operation 的递归定义是否对 Scalable Vector 适用?
+                            \item 可能需要先进行社区讨论
+                        \end{itemize}
+              \end{itemize}
+    \end{itemize}
 \end{frame}
 
 \end{document}
