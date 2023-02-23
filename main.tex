@@ -111,15 +111,19 @@ vector A[100xfloat] => A[25* 4xfloat]
 \begin{frame}
     \frametitle{Auto-Vectorization $\Rightarrow$ Pattern-Rewrite?}
 
-    自动向量化 $\Rightarrow$ 将标量提升为 Vector 类型
+    总体思路：自动向量化 $\rightarrow$ 将标量提升为 Vector 类型 $\rightarrow$ Aseembly
 
     \hspace{2em}
 
     如果源代码：
     \begin{enumerate}
-        \item 矩阵乘法等高维形式 $\rightarrow$ 使用 \texttt{linalg} 直接 lowering 到 \texttt{vector}
-        \item 本来是标量循环 $\rightarrow$ \texttt{affine.for} $\rightarrow$ \texttt{vector}
+        \item 矩阵乘法等高维形式: DSL $\rightarrow$ \texttt{linalg} $\rightarrow$ \texttt{vector}
+        \item 标量循环: \texttt{affine.for} $\rightarrow$ \texttt{vector}
     \end{enumerate}
+
+    \begin{center}
+        挑战：如何将标量循环转换为 \texttt{vector} ?
+    \end{center}
 
 \end{frame}
 
