@@ -3,6 +3,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{float}
+\usepackage{makecell}
 \usetheme{Madrid}
 
 \input{color_style.tex}
@@ -165,6 +166,44 @@ vector A[100xfloat] => A[25* 4xfloat]
 
 \end{frame}
 
+
+\begin{frame}
+    \frametitle{Conclusion}
+
+    对于某一个新体系结构，要想针对其实现自动向量化，可以的方案：
+
+    \begin{enumerate}
+        \item 观察 \texttt{vector} Dialect 有没有已有的抽象，将没有的抽象自定义 Dialect
+        \item 自己实现自定义 Dialect 的自动向量化
+        \item 自定义 Dialect 需要支持 Lowering 到 LLVM IR (可选 VP 或者 Vector)
+        \item 实现 llc 后端，主要是 VP Intrinsics 和 Vector intrinsics 到自己的体系结构
+    \end{enumerate}
+
+\end{frame}
+
+\section{RISC-V V Extension}
+
+\begin{frame}
+    \frametitle{RISC-V}
+
+    RVV 被认为是面向``超级计算机''的扩展。RVV 支持多种现代向量指令集所具有的操作，从编译器设计角度带来了一些具体的挑战：
+
+    \begin{table}
+        \scriptsize
+        \centering
+        \caption{部分 RVV Feature 与对应编译器自动向量化实现情况}
+        \begin{tabular}{cccc}
+            \toprule
+            RVV Feature         & 功能           & 传统 SIMD       & LLVM 实现             \\
+            \midrule
+            向量长度寄存器 \texttt{vl} & 控制要执行的向量长    & 无             & VP，向量化忽略            \\
+            mask                & mask 掉不需要的   & 有，较少 (AVX512) & VP，向量化忽略            \\
+            寄存器编组               & 向量寄存器可以组合或拆分 & 以不同指令区分不同向量长度 & \thead{基于 vscale 实现 \\ 向量化需要手动指定} \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+\end{frame}
 
 \end{document}
 
