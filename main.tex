@@ -99,12 +99,31 @@ vector A[100xfloat] => A[25* 4xfloat]
 
 \begin{frame}
     \frametitle{Virtual Vector Lowering Path}
+    \noindent
+    \begin{minipage}[t]{0.50\linewidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=1.0\linewidth]{images/position2.png}
+            \caption{MLIR Patterns}
+        \end{figure}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{0.45\linewidth}
+        主要的三层中间表达：
+        \begin{enumerate}
+            \item Virtual Vector：使用nD vector type，\texttt{vector<4x8x128xf32>}
+            \item Hardware Vector：Op $\approx$ 指令
+            \item LLVM：instructions，intrinsics, $\dots$
+        \end{enumerate}
 
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.56\linewidth]{images/position2.png}
-        \caption{MLIR Patterns}
-    \end{figure}
+        \begin{itemize}
+            \item VV同层转换：例如unroll，permute
+            \item VV $\rightarrow$ HWV，一些手写的pattern：例如CPU的VL；这层lower之后，一些循环优化被禁止（需要确认）
+            \item HWV $\rightarrow$ LLVM，手工的
+        \end{itemize}
+    \end{minipage}
+
+
 
 \end{frame}
 
