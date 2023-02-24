@@ -178,8 +178,8 @@ vector A[100xfloat4] => A[25 x 4 x float]
 
         \vspace{1.5em}
         分析数据访问和依赖, 尽可能识别并生成 \texttt{affine.for} \\
-        在 affine 上做嵌套循环相关的优化 (例如 loop fusion, unroll 等) \\
-        再在 affine 上做向量化 (例如 \texttt{SuperVectorize.cpp})
+        在 \texttt{affine} 上做嵌套循环相关的优化 (例如 loop fusion, unroll 等) \\
+        再在 \texttt{affine} 上做向量化 (例如 \texttt{SuperVectorize.cpp})
     \end{center}
 
 \end{frame}
