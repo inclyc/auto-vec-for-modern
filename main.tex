@@ -201,6 +201,73 @@ vector A[25 x float4] => A[25 x 4 x float]
         \item 在 \texttt{affine} 上做嵌套循环相关的优化(例如 loop fusion, unroll 等)
         \item 再在 \texttt{affine} 上做向量化 (例如 \texttt{SuperVectorize.cpp})
     \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{C for-loop $\rightarrow$ basic \texttt{affine} Dialect}
+    \noindent
+    \begin{minipage}[t]{0.3\linewidth}
+        \lstinputlisting[language=C,basicstyle=\Tiny]{assets/example.c}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{0.6\linewidth}
+        \lstinputlisting[language=llvm,basicstyle=\Tiny]{assets/example_direct_affine.mlir}
+    \end{minipage}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Loop Normalization on \texttt{affine} Dialect}
+
+    \begin{minipage}[t]{0.6\linewidth}
+        \lstinputlisting[language=llvm]{assets/example_normalized.mlir}
+    \end{minipage}%
+    \hfill%
+    \begin{minipage}[t]{0.4\linewidth}
+        \vspace{3em}
+        除了循环正规化, 在 \texttt{scf} 和 \texttt{affine} dialect 上有一些现存的循环变换 pass, 可以通过 \texttt{mlir-opt --help} 查看.
+    \end{minipage}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Induction Variable Elimination on \texttt{affine} Dialect}
+
+    \lstinputlisting[language=llvm]{assets/indvars.mlir}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Final Result}
+
+    \lstinputlisting[language=llvm]{assets/final.mlir}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{\texttt{affine} $\rightarrow$ \texttt{vector}}
+
+    \begin{lstlisting}[language=llvm]
+// send it to affine-supre-vertorize pass
+// mlir-opt --affine-super-vectorize='virtual-vector-size=256 test-fastest-varying=0'
+func.func @example_vector() {
+    //... same as above
+    // unimplement yet :(
+    func.return
+}
+    \end{lstlisting}
+
+    目前的 \texttt{affine} super-vectorize 只实现了少量 case !
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{\texttt{affine} $\rightarrow$ \texttt{vector}}
+
+    一个真实可用的例子:
+
+    \lstinputlisting[language=llvm]{assets/affine-a+b.mlir}
+
+    上面的 $C = A + B$ 可以被变为:
+
+    \lstinputlisting[language=llvm]{assets/affine-vec.mlir}
 
 \end{frame}
 

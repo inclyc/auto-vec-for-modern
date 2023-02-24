@@ -50,4 +50,40 @@ showstringspaces=false                        % do not replace spaces with weird
     frame=none
 }
 
+\definecolor{orange3}{rgb}{0.425,0.191,0.000}
+\definecolor{scarletred3}{rgb}{0.643,0.000,0.000}
+\definecolor{green3}{rgb}{0.000,0.405,0.000}
+\definecolor{blue3}{rgb}{0.000,0.000,0.704}
+\definecolor{aluminium1}{rgb}{0.933,0.933,0.925}
+\definecolor{aluminium2}{rgb}{0.827,0.843,0.812}
+\definecolor{aluminium3}{rgb}{0.729,0.741,0.714}
+\definecolor{aluminium4}{rgb}{0.533,0.541,0.522}
+\definecolor{aluminium5}{rgb}{0.333,0.341,0.325}
+\definecolor{aluminium6}{rgb}{0.180,0.204,0.212}
+
+\lstdefinelanguage{llvm}{
+    % see https://tex.stackexchange.com/questions/137237/listings-text-highlighting-based-on-prefix
+    %moredelim=[s][\color{orange3}]{x}{>},
+    alsoletter={\%,\#,!},
+    basicstyle=\tiny\ttfamily,
+    keywordsprefix={\%},
+    morekeywords={\%},
+    keywordstyle=\color{orange3},
+    commentstyle=\color{aluminium4},
+    % this allows to color inside <memrefxf32> (i.e., f32).
+    otherkeywords={index, f32, i32, f64, i8},
+    keywords=[3]{index, f32, memref, i32, f64, i8, affine_map, affine_set, iter_args},
+    keywordstyle=[3]\color{scarletred3},
+    keywords=[4]{affine},
+    keywordstyle=[4]\color{aluminium6},
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    morestring=[b]",
+    stringstyle=\color{green3},
+    moredelim=[s][\color{blue3}]{\#}{<},
+    moredelim=[s][\color{scarletred3}]{!}{\ },
+    morecomment=[l]{//},
+}
+
 \lstset{style=mystyle,language=C++}
