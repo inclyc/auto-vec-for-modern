@@ -100,10 +100,10 @@
     一个简单的例子：
 
     \begin{lstlisting}
-kernel（float A）.     load A[0-3]; add[0-3]
-kernel (float4 A).     load A[0-15]; add[0-3] ; add[4-7]; add[]; add[]
+kernel (float4 A).     load A[0-3]; add[0-3]
+kernel (float A).     load A[0-15]; add[0-3]; add[4-7]; add[8-11]; add[12-15]
 
-vector A[100xfloat4] => A[25 x 4 x float]
+vector A[25 x float4] => A[25 x 4 x float]
     \end{lstlisting}
 \end{frame}
 
