@@ -295,8 +295,7 @@ func.func @example_vector() {
     \begin{enumerate}
         \item 观察 \texttt{vector} Dialect 有没有已有的抽象，将没有的抽象自定义 Dialect
         \item 自己实现自定义 Dialect 的自动向量化
-        \item 自定义 Dialect 需要支持 Lowering 到 LLVM IR (可选 VP 或者 Vector)
-        \item 实现 llc 后端，主要是 VP Intrinsics 和 Vector intrinsics 到自己的体系结构
+        \item 自定义 Dialect 离开 MLIR 后，需要有基础设施 Lowering 到 asm （LLVM, NVVM，SPIR-V）
     \end{enumerate}
 
 \end{frame}
