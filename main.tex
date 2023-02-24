@@ -175,17 +175,32 @@ vector A[25 x float4] => A[25 x 4 x float]
 
     如果源代码：
     \begin{enumerate}
-        \item 矩阵乘法等高维形式: DSL $\rightarrow$ \texttt{linalg} $\rightarrow$ \texttt{vector}
-        \item 标量循环: \texttt{affine.for} $\rightarrow$ \texttt{vector}
+        \item 矩阵乘法等高维形式: DSL $\rightarrow$ \texttt{linalg} ($\rightarrow$ \texttt{affine} $\rightarrow$) $\rightarrow$ \texttt{vector}
+        \item 标量循环: \texttt{scf.for}/通用语言 $\rightarrow$ \texttt{affine.for} $\rightarrow$ \texttt{vector}
     \end{enumerate}
+
+    \begin{center}
+        \vspace{2em}
+        挑战：如何将标量循环转换为 \texttt{vector} ?
+    \end{center}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{标量循环 $\rightarrow$ \texttt{vector} Dialect}
 
     \begin{center}
         挑战：如何将标量循环转换为 \texttt{vector} ?
 
         \vspace{1.5em}
-
-        \texttt{SuperVectorize.cpp}
     \end{center}
+
+    \begin{enumerate}
+        \item 从标量循环/scf/语言分析数据访问和依赖
+        \item 尽可能识别特定模式并生成 \texttt{affine.for}
+        \item 在 \texttt{affine} 上做嵌套循环相关的优化(例如 loop fusion, unroll 等)
+        \item 再在 \texttt{affine} 上做向量化 (例如 \texttt{SuperVectorize.cpp})
+    \end{enumerate}
 
 \end{frame}
 
