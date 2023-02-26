@@ -7,6 +7,7 @@
 \usetheme{Madrid}
 
 \input{color_style.tex}
+\input{lst_riscv.tex}
 \input{lst_style.tex}
 \input{section_pages.tex}
 
@@ -17,7 +18,309 @@
 
 \begin{document}
 \maketitle
-\section{Introduction}
+
+\begin{frame}
+    \frametitle{Table of Contents}
+
+    \tableofcontents
+
+\end{frame}
+
+\section{Moore定律的终结和并行化的需求}
+
+\begin{frame}
+    \frametitle{Moore's Law to be over}
+
+    集成电路上可容纳的晶体管数目，约每隔两年便会增加一倍
+
+    \begin{figure}[h]
+        \includegraphics[height=0.5\textheight]{images/moore.jpeg}
+        \caption{Moore's Law}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Parallel}
+
+    提高计算机性能的方法，是并行化。
+
+    \begin{figure}[h]
+        \includegraphics[height=0.5\textheight]{images/dual_core.png}
+        \caption{Dual Core Cache Design}
+    \end{figure}
+
+\end{frame}
+
+\section{并行的手段}
+
+\subsection{Multi-Core}
+
+\begin{frame}
+    \frametitle{Multi-Core}
+
+    为了实现并行化，我们可以给一个计算机加入多个核心。
+
+    \begin{itemize}
+        \item 不同的寄存器
+        \item 不同的中断处理请求
+        \item 操作系统-对称多处理(SMP)调度
+    \end{itemize}
+
+    \begin{figure}[h]
+        \includegraphics[height=0.45\textheight]{images/smp.png}
+        \caption{Symmetric multiprocessing}
+    \end{figure}
+
+\end{frame}
+
+\subsection{Single-Core}
+
+\begin{frame}[fragile]
+    \frametitle{Single-Core - Out-of-Order Execution}
+
+    乱序执行(Out-of-Order Execution)是现代CPU最基本的一个并行手段。
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{lstlisting}[language=C++]
+int test(int &a,
+         int &b,
+         int &c,
+         int &d) {
+    a += b;
+    c += d;
+    return 0;
+}
+        \end{lstlisting}
+    \end{minipage}
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{lstlisting}[language={[RISC-V]Assembler}]
+    lw      a1, 0(a1)
+    lw      a4, 0(a0)
+    addw    a1, a1, a4
+    sw      a1, 0(a0)
+    lw      a0, 0(a3)
+    lw      a1, 0(a2)
+    addw    a0, a0, a1
+    sw      a0, 0(a2)
+        \end{lstlisting}
+    \end{minipage}
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Single-Core - SIMD}
+
+    OoOE在编程上由编译器全局指令调度器(Instruction Scheduler)优化。
+
+    单指令流多数据流(Single instruction, multiple data (SIMD))，提供了一种让我
+    们更好地进行向量计算的方式。
+
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.5\textheight]{images/SIMD2.svg.png}
+        \caption{SIMD}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Benefits of SIMD}
+
+    通常情况下我们很难将串行代码转化为并行，为了设计并行算法通常需要改变原有的
+    逻辑。
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/rgba.png}
+        \caption{RGBA}
+    \end{figure}
+
+    如图所示，在图形学中我们经常需要计算图像的颜色信息，而颜色在RGBA几个维度下
+    的计算是可以向量化的。
+
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{GPGPU}
+
+    显卡(GPU)包含大量的核心来支持高度并行化的计算，最开始的在显卡上的编程是很困
+    难的，随着时代的发展显卡的计算能力越来越不容小觑，通用计算显卡(GPGPU)也开始
+    包含在编译优化的领域。如何把科研大佬写的模型，放到真正的显卡上执行？
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[height=0.5\textheight]{images/torch-mlir.png}
+        \caption{Torch-MLIR}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Problem With SIMD Instructions}
+
+    \begin{block}{RISC-V Designers}
+        \textit{SIMD Instructions considered harmful. -- David Patterson}
+    \end{block}
+
+    一开始，SIMD被认为是实现并行化简单有效的方法。我们将64位寄存器和ALU划分为许
+    多8, 16, 32位的块，然后并行地计算它们。用每条指令的操作码(opcode)提供数据宽
+    度和操作。
+
+    \textbf{指令集膨胀}
+
+    IA-32指令集已经从最开始的80多条指令增长到了现在的1400多条。SSE, AVX, 各种
+    SIMD扩展和宽寄存器让指令集变得越来越复杂。
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Vector vs SIMD}
+
+    向量机与SIMD的真正区别在于，向量长度是否在机器码层面确定。
+
+    \begin{lstlisting}
+void *memcpy_vec(void *dst, void *src, size_t n) {
+    void *save = dst;
+    // copy data byte by byte
+    for (size_t vl; n > 0; n -= vl, src += vl, dst += vl) {
+        vl = vsetvl_e8m8(n);
+        vuint8m8_t vec_src = vle8_v_u8m8(src, vl);
+        vse8_v_u8m8(dst, vec_src, vl);
+    }
+    return save;
+}
+    \end{lstlisting}
+
+
+\end{frame}
+
+\section{Auto-Vectorization}
+
+\begin{frame}[fragile]
+    \frametitle{Auto-Vectorization}
+
+    标量代码可以被自动向量化成含向量计算的代码。
+
+    事实上，大量的标量循环都可以被向量化
+
+    \begin{lstlisting}
+void add(int * restrict A, int * restrict B, int n){
+    for(int i = 0;i < n;i++){
+        A[i] += B[i];
+    }
+}
+    \end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{合法性}
+
+    数据依赖 \& Overlap (Alias Analysis)
+
+    \begin{lstlisting}
+for (int i = 0; i < N; i += 1) {
+    a[i+1] = b[i] + 1;  // S1
+    b[i+1] = a[i] + 1;  // S2
+}
+    \end{lstlisting}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\textwidth]{images/overlap.png}
+        \caption{Example of pointer overlapping}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{合法性}
+
+    \begin{lstlisting}
+for(int i = 1;i < n;i++)
+    A[i] = A[i - 1];
+    \end{lstlisting}
+    \begin{lstlisting}
+for(int i = 1;i < n;i++)
+    A[i + 1] = B[i]; // overlap?
+    \end{lstlisting}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\textwidth]{images/overlap.png}
+        \caption{Example of pointer overlapping}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{收益}
+
+    必然导致的程序大小增加 / 标量循环和向量循环的选择和跳转
+
+    数据对齐的代价，尾循环的代价，都是需要考虑的因素。
+
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{lstlisting}[language=C++]
+load i64;
+load i64;
+load i64;
+load i64;
+        \end{lstlisting}
+    \end{minipage}
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{lstlisting}[language={[RISC-V]Assembler}]
+load <4 x i64>;
+        \end{lstlisting}
+    \end{minipage}
+
+    由体系结构实现。
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Transformation}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{images/trans.png}
+        \caption{LLVM Developer 2013 by Apple}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Loop Vectorizer Enhancements}
+
+    现代化向量指令集可以更好地完成向量长度选择。
+
+    \begin{lstlisting}[language={[RISC-V]Assembler}]
+memcpy:
+    mv a3, a0 # Copy destination
+loop:
+    vsetvli t0, a2, e8, m8, ta, ma   # Vectors of 8b
+    vle8.v v0, (a1)                  # Load bytes
+    add a1, a1, t0                   # Bump pointer
+    sub a2, a2, t0                   # Decrement count
+    vse8.v v0, (a3)                  # Store bytes
+    add a3, a3, t0                   # Bump pointer
+    bnez a2, loop                    # Any more?
+    ret                              # Return
+    \end{lstlisting}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mask \& Predication}
+
+    Predication (判定寄存器) 其实是来源于ARM SVE的一个东西
+
+    VP-based Loop Vectorizer 在 LLVM 中还没实现...
+
+\end{frame}
+
 \subsection{Challenges}
 \begin{frame}
     \frametitle{Challenges - 并行的多样性}

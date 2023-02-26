@@ -1,0 +1,36 @@
+\lstdefinelanguage[RISC-V]{Assembler}
+{
+    alsoletter={.}, % allow dots in keywords
+    alsodigit={0x}, % hex numbers are numbers too!
+    morekeywords=[1]{ % instructions
+            lb, lh, lw, lbu, lhu,
+            sb, sh, sw,
+            sll, slli, srl, srli, sra, srai,
+            add, addi, sub, lui, auipc,
+            xor, xori, or, ori, and, andi,
+            slt, slti, sltu, sltiu,
+            beq, bne, blt, bge, bltu, bgeu, bnez,
+            j, jr, jal, jalr, ret,
+            scall, break, nop,
+            vsetvli,
+            vle8.v,
+            vse8.v
+        },
+    morekeywords=[2]{ % sections of our code and other directives
+            .align, .ascii, .asciiz, .byte, .data, .double, .extern,
+            .float, .globl, .half, .kdata, .ktext, .set, .space, .text, .word
+        },
+    morekeywords=[3]{ % registers
+            zero, ra, sp, gp, tp, s0, fp,
+            t0, t1, t2, t3, t4, t5, t6,
+            s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11,
+            a0, a1, a2, a3, a4, a5, a6, a7,
+            ft0, ft1, ft2, ft3, ft4, ft5, ft6, ft7,
+            fs0, fs1, fs2, fs3, fs4, fs5, fs6, fs7, fs8, fs9, fs10, fs11,
+            fa0, fa1, fa2, fa3, fa4, fa5, fa6, fa7
+        },
+    morecomment=[l]{;},   % mark ; as line comment start
+    morecomment=[l]{\#},  % as well as # (even though it is unconventional)
+    morestring=[b]",      % mark " as string start/end
+    morestring=[b]'       % also mark ' as string start/end
+}
